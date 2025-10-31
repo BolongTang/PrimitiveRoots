@@ -240,6 +240,8 @@
                 pyodide = await loadPyodide();
                 
                 // Load the Python code
+                // This is an exact copy of the what_root_which_power function from PrimitiveRoots.py
+                // It's embedded here to run in the browser via Pyodide
                 await pyodide.runPythonAsync(`
 def what_root_which_power(quotient = 6, modulus = 7, cap = 3000, primitive_roots = [3,5]):
     roots_powers = []
