@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primitive Roots Calculator</title>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .description {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0066cc;
+        }
+
+        .description p {
+            margin-bottom: 8px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .hint {
+            display: block;
+            font-size: 0.9em;
+            color: #777;
+            margin-bottom: 5px;
+            font-style: italic;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #0052a3;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 100px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            display: none;
+        }
+
+        #output.show {
+            display: block;
+        }
+
+        .output-title {
+            font-weight: bold;
+            color: #0066cc;
+            margin-bottom: 10px;
+        }
+
+        #loading {
+            text-align: center;
+            color: #0066cc;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0066cc;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #777;
+            font-size: 0.9em;
+        }
+
+        .footer a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Primitive Roots Calculator</h1>
+    
+    <div class="description">
+        <p><strong>Topic:</strong> Number Theory, Modulo Arithmetics</p>
+        <p>Express the given quotient as the power of some primitive root using the given modulus.</p>
+        <p><strong>Example:</strong> To find integer solutions of x<sup>15</sup> = 7 mod 19, requires knowing the primitive roots of mod 19, which are 2, 3, 10, 13, 14, and 15. This tool rewrites the 7 (quotient) as a root raised to some power, and rewrites x = root<sup>y</sup>.</p>
+    </div>
+
+    <div class="container">
+        <form id="calcForm">
+            <div class="form-group">
+                <label for="quotient">Quotient</label>
+                <span class="hint">Ex. The 6 in x<sup>9</sup> = 6 mod 7</span>
+                <input type="number" id="quotient" name="quotient" required placeholder="6">
+            </div>
+
+            <div class="form-group">
+                <label for="modulus">Modulus</label>
+                <span class="hint">Ex. The 7 in x<sup>9</sup> = 6 mod 7</span>
+                <input type="number" id="modulus" name="modulus" required placeholder="7">
+            </div>
+
+            <div class="form-group">
+                <label for="primitive_roots">Primitive Roots</label>
+                <span class="hint">Space-separated list. Ex. For mod 7, input: 3 5</span>
+                <input type="text" id="primitive_roots" name="primitive_roots" required placeholder="3 5">
+            </div>
+
+            <div class="form-group">
+                <label for="cap">Search Cap</label>
+                <span class="hint">The program searches up to this number. Increase if results are empty.</span>
+                <input type="number" id="cap" name="cap" required placeholder="3000">
+            </div>
+
+            <button type="submit" id="submitBtn">Calculate</button>
+        </form>
+
+        <div id="loading">
+            <div class="spinner"></div>
+            <p>Loading Python environment...</p>
+        </div>
+
+        <div id="output"></div>
+    </div>
+
+    <div class="footer">
+        <p>This tool runs Python code directly in your browser using <a href="https://pyodide.org/" target="_blank">Pyodide</a>.</p>
+        <p><a href="https://github.com/BolongTang/PrimitiveRoots" target="_blank">View on GitHub</a></p>
+    </div>
+
+    <script>
+        let pyodide = null;
+        let pyodideReady = false;
+
+        // Load Pyodide on page load
+        async function loadPyodide() {
+            const loadingDiv = document.getElementById('loading');
+            loadingDiv.style.display = 'block';
+            
+            try {
+                pyodide = await loadPyodide();
+                
+                // Load the Python code
+                await pyodide.runPythonAsync(`
+def what_root_which_power(quotient = 6, modulus = 7, cap = 3000, primitive_roots = [3,5]):
+    roots_powers = []
+    for root in primitive_roots:
+        root_power = []
+        power = 1
+        while root ** power < cap:
+            root_power.append(root ** power)
+            power += 1
+        roots_powers.append(root_power)
+
+    root_power_pairs = []
+
+    for i in range(len(roots_powers)):
+        root_powers = roots_powers[i]
+        power = 1
+        for root_power in root_powers:
+            if root_power % modulus == quotient:
+                root_power_pairs.append((primitive_roots[i], power))
+            power += 1
+    
+    return root_power_pairs
+                `);
+                
+                pyodideReady = true;
+                loadingDiv.style.display = 'none';
+            } catch (error) {
+                loadingDiv.innerHTML = `<p style="color: red;">Error loading Python environment: ${error.message}</p>`;
+            }
+        }
+
+        // Initialize Pyodide when page loads
+        loadPyodide();
+
+        document.getElementById('calcForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!pyodideReady) {
+                alert('Python environment is still loading. Please wait...');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            const outputDiv = document.getElementById('output');
+            
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Calculating...';
+            outputDiv.classList.remove('show');
+
+            // Get form values
+            const quotient = parseInt(document.getElementById('quotient').value);
+            const modulus = parseInt(document.getElementById('modulus').value);
+            const primitive_roots = document.getElementById('primitive_roots').value
+                .split(' ')
+                .map(x => parseInt(x.trim()))
+                .filter(x => !isNaN(x));
+            const cap = parseInt(document.getElementById('cap').value);
+
+            try {
+                // Set up Python variables
+                pyodide.globals.set('quotient', quotient);
+                pyodide.globals.set('modulus', modulus);
+                pyodide.globals.set('primitive_roots', primitive_roots);
+                pyodide.globals.set('cap', cap);
+
+                // Run the calculation
+                const result = await pyodide.runPythonAsync(`
+result = what_root_which_power(quotient, modulus, cap, primitive_roots)
+result
+                `);
+
+                // Format output
+                let output = '<div class="output-title">Choices:</div>';
+                
+                if (result.length === 0) {
+                    output += 'No solutions found. Try increasing the cap value.\n';
+                } else {
+                    result.toJs().forEach(pair => {
+                        const [root, power] = pair;
+                        output += `root: ${root}, power: ${power}\n`;
+                    });
+                    output += '\n';
+                    output += 'Quotient = root ** power; root is g in x = g^y.\n';
+                    output += `(Ex. Rewrite x ** 9 = ${quotient} mod ${modulus} as root^(9 * y) = root^power mod ${modulus}.)\n`;
+                    output += 'Next step: Equate exponents, mod (modulus - 1). Solve for y, then plug back for x (may have several solutions).';
+                }
+
+                outputDiv.innerHTML = output;
+                outputDiv.classList.add('show');
+            } catch (error) {
+                outputDiv.innerHTML = `<div style="color: red;">Error: ${error.message}</div>`;
+                outputDiv.classList.add('show');
+            } finally {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Calculate';
+            }
+        });
+
+        // Set default values
+        window.addEventListener('load', function() {
+            document.getElementById('quotient').value = '6';
+            document.getElementById('modulus').value = '7';
+            document.getElementById('primitive_roots').value = '3 5';
+            document.getElementById('cap').value = '3000';
+        });
+    </script>
+</body>
+</html>
