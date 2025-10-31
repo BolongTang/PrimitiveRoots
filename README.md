@@ -1,3 +1,5 @@
 Topics: Number Theory, modulo arithmetics
 
+Express the given quotient as the power of some primitive root using the given modulus. 
+
 To find integer solutions of x^15 = 7 mod 19 requires sieving the primitive roots of mod 19, which are 2,3,10,13,14, and 15. This tool rewrites the 7 (quotient) as a root raised to some power, and rewrites x = root^y. (Next, proceed by equating the exponents mod (19 - 1), solving for y, and then solving for x.)
