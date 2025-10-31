@@ -66,7 +66,7 @@ def main():
     quotient = int(input("What's your quotient? Input an integer. (Ex. The 6 in x ** 9 = 6 mod 7) \n"))
     modulus = int(input("What's your modulus? Input an integer. (Ex. The 7 in x ** 9 = 6 mod 7)\n"))
     primitive_roots = [int(root) for root in (input("What are the primitive roots of this modulus? Check the table. Input all numbers at once with a space between each number. (Ex. For mod 7, input 3 5 with a space in between.)\n")).split()]
-    cap = int(input("What number do you want to search up to? Input an integer. (Ex. The cap of the 6 mod 7 set, which is {..., -1, 6, 13, 20, 27, 34, 41, ...}. The program searches up from the inputted quotient to this cap. Increaase the cap if the 'Choices:' section is empty.\n"))
+    cap = int(input("What number do you want to search up to? Input an integer. (Ex. The cap of the 6 mod 7 set, which is {..., -1, 6, 13, 20, 27, 34, 41, ...}. The program searches up from the inputted quotient to this cap. Increase the cap if the 'Choices:' section is empty.)\n"))
     print("\nChoices:")
     for root, power in what_root_which_power(quotient, modulus, cap, primitive_roots):
         print(f"root: {root}, power: {power}")
