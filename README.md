@@ -8,9 +8,18 @@ To find integer solutions of x^15 = 7 mod 19 requires sieving the primitive root
 
 ### Web Interface (GitHub Pages)
 
-Visit the GitHub Pages site to use the tool directly in your browser without installing Python.
+Visit the [GitHub Pages site](https://BolongTang.github.io/PrimitiveRoots/) to use the tool directly in your browser without installing Python.
 
-The web interface provides the same functionality as the command-line version with an easy-to-use form interface.
+The web interface provides the same functionality as the command-line version with an easy-to-use form interface. It uses [Pyodide](https://pyodide.org/) to run Python code directly in your browser.
+
+**Features:**
+- No installation required
+- Same algorithm as the command-line version
+- Pre-filled example values
+- Clean, intuitive interface
+- Works on any device with a web browser
+
+See [SETUP.md](SETUP.md) for instructions on enabling GitHub Pages for this repository.
 
 ### Command Line
 
