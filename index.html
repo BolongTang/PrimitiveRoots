@@ -130,6 +130,10 @@
             display: none;
         }
 
+        #loading.error {
+            color: #d32f2f;
+        }
+
         .spinner {
             border: 3px solid #f3f3f3;
             border-top: 3px solid #0066cc;
@@ -143,6 +147,16 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 0.9em;
         }
 
         .footer {
@@ -218,7 +232,7 @@
         let pyodideReady = false;
 
         // Load Pyodide on page load
-        async function loadPyodide() {
+        async function loadPyodideEnvironment() {
             const loadingDiv = document.getElementById('loading');
             loadingDiv.style.display = 'block';
             
@@ -253,12 +267,20 @@ def what_root_which_power(quotient = 6, modulus = 7, cap = 3000, primitive_roots
                 pyodideReady = true;
                 loadingDiv.style.display = 'none';
             } catch (error) {
-                loadingDiv.innerHTML = `<p style="color: red;">Error loading Python environment: ${error.message}</p>`;
+                loadingDiv.classList.add('error');
+                loadingDiv.innerHTML = `
+                    <p>Error loading Python environment: ${error.message}</p>
+                    <div class="warning">
+                        <strong>Note:</strong> This page requires internet access to load Pyodide from a CDN. 
+                        If you're viewing this locally, some browsers may block external resources. 
+                        The page should work correctly when deployed to GitHub Pages.
+                    </div>
+                `;
             }
         }
 
         // Initialize Pyodide when page loads
-        loadPyodide();
+        loadPyodideEnvironment();
 
         document.getElementById('calcForm').addEventListener('submit', async function(e) {
             e.preventDefault();
